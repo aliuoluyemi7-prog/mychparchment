@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Parchment — Carry the Word through your week.</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parchment:#F1E6CC;
+    --parchment-deep:#E6D6AC;
+    --parchment-card:#F6EDD6;
+    --ink:#2B2419;
+    --ink-soft:#5A4F3C;
+    --wine:#7A2E2E;
+    --wine-deep:#5E2222;
+    --gold:#A9802E;
+    --gold-soft:#C9A35C;
+    --sepia-line:#CBB888;
+    --shadow:rgba(43,36,25,0.18);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--parchment);
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(169,128,46,0.08), transparent 60%),
+      radial-gradient(ellipse at 80% 90%, rgba(122,46,46,0.06), transparent 60%);
+    color:var(--ink);
+    font-family:'Source Sans 3', sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .wrap{max-width:760px;margin:0 auto;padding:28px 18px 80px;}
+
+  .tab-nav{display:flex;gap:2px;margin-bottom:20px;border-bottom:2px solid var(--sepia-line);}
+  .tab-btn{
+    flex:1;padding:12px;background:none;border:none;cursor:pointer;
+    font-size:14px;font-weight:600;color:var(--ink-soft);
+    border-bottom:3px solid transparent;margin-bottom:-2px;
+    transition:all 0.2s;
+  }
+  .tab-btn.active{color:var(--wine);border-bottom-color:var(--wine);}
+  .tab-btn:hover{color:var(--wine);}
+
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+
+  header{text-align:center;margin-bottom:30px;}
+  header .crest{width:84px;height:auto;margin:0 auto 10px;display:block;}
+  h1{font-family:'Cormorant Garamond',serif;font-weight:700;font-size:clamp(34px,7vw,46px);letter-spacing:0.5px;margin:0 0 4px;}
+  header p.tagline{font-style:italic;color:var(--ink-soft);font-size:15px;margin:0;}
+
+  .section{
+    background:var(--parchment-card);
+    border:1px solid var(--sepia-line);
+    border-radius:3px;
+    padding:22px 20px;
+    margin-bottom:20px;
+    box-shadow:0 4px 14px var(--shadow);
+  }
+  .section::before{
+    content:"";
+    position:absolute;top:0;left:0;right:0;height:4px;
+    background:repeating-linear-gradient(90deg, var(--gold-soft) 0 10px, transparent 10px 16px);
+    opacity:0.5;
+  }
+  .section-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;margin:0 0 16px;color:var(--wine);}
+
+  input, select, textarea{padding:10px;border:1px solid var(--sepia-line);background:white;color:var(--ink);font-size:14px;border-radius:2px;font-family:inherit;width:100%;}
+  textarea{resize:vertical;min-height:100px;margin-bottom:12px;}
+
+  button{padding:10px 18px;background:var(--wine);color:white;border:none;border-radius:2px;cursor:pointer;font-size:14px;font-weight:600;width:100%;}
+  button:hover{background:var(--wine-deep);}
+
+  .note-item{background:white;padding:14px;margin:12px 0;border-left:3px solid var(--wine-deep);}
+  .note-date{font-size:12px;color:var(--ink-soft);margin-bottom:6px;}
+  .note-delete{float:right;background:none;border:none;color:#c00;cursor:pointer;font-size:16px;width:auto;padding:0;}
+
+  .verse-display{background:white;padding:14px;border-left:3px solid var(--gold-soft);margin:12px 0;font-style:italic;line-height:1.7;}
+  .verse-ref{font-weight:600;color:var(--wine);display:block;margin-bottom:8px;font-style:normal;font-size:13px;}
+
+  .info{background:#e6f3ff;color:#003366;padding:12px;border-radius:2px;margin:12px 0;font-size:13px;border-left:3px solid #0066cc;}
+
+  h2{margin-top:18px;margin-bottom:12px;font-size:18px;}
+  .sub-heading{font-size:13px;color:var(--ink-soft);margin:12px 0 8px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <svg class="crest" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#C9A35C;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#A9802E;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <circle cx="50" cy="50" r="48" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+      <path d="M 50 20 L 60 40 L 50 35 L 40 40 Z" fill="url(#goldGrad)"/>
+      <path d="M 50 50 Q 50 60 45 70 Q 50 75 55 70 Q 50 60 50 50" fill="url(#goldGrad)"/>
+    </svg>
+    <h1>Parchment</h1>
+    <p class="tagline">Carry the Word through your week.</p>
+  </header>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('sermon')">Sermon</button>
+    <button class="tab-btn" onclick="switchTab('reflect')">Reflect</button>
+    <button class="tab-btn" onclick="switchTab('bible')">Bible</button>
+  </div>
+
+  <!-- SERMON TAB -->
+  <div id="sermon" class="tab-content active">
+    <div class="section">
+      <h2 class="section-title">📖 Sermon Notes</h2>
+
+      <h3 class="sub-heading">Title</h3>
+      <input type="text" id="sermonTitle" placeholder="What was this sermon called?">
+
+      <h3 class="sub-heading">Preacher</h3>
+      <input type="text" id="preacher" placeholder="Who brought the word?">
+
+      <h3 class="sub-heading">Topic</h3>
+      <input type="text" id="topic" placeholder="What was it about?">
+
+      <h3 class="sub-heading">What Stood Out?</h3>
+      <textarea id="standOut" placeholder="What stood out as you listened?"></textarea>
+
+      <button onclick="saveSermon()">Save Sermon</button>
+
+      <h3 class="sub-heading" style="margin-top:20px;">Recent Sermons</h3>
+      <div id="sermonsList"></div>
+    </div>
+  </div>
+
+  <!-- REFLECTION TAB -->
+  <div id="reflect" class="tab-content">
+    <div class="section">
+      <h2 class="section-title">✝ This Week's Reflection</h2>
+
+      <h3 class="sub-heading">What did you understand?</h3>
+      <textarea id="understood" placeholder="One or two sentences is enough."></textarea>
+
+      <h3 class="sub-heading">What will you carry into this week?</h3>
+      <textarea id="carry" placeholder="Name one thing. This becomes your focus for the week."></textarea>
+
+      <button onclick="saveReflection()">Save Reflection</button>
+
+      <h3 class="sub-heading" style="margin-top:20px;">Your Reflections</h3>
+      <div id="reflectionsList"></div>
+    </div>
+  </div>
+
+  <!-- BIBLE TAB -->
+  <div id="bible" class="tab-content">
+    <div class="section">
+      <h2 class="section-title">⸗ Bible</h2>
+
+      <div class="info">
+        💡 This Bible is offline. It works even without internet after you use it once.
+      </div>
+
+      <h3 class="sub-heading">Quick Verse Lookup</h3>
+      <input type="text" id="verseRef" placeholder="e.g., John 3:16, Romans 8:28" onkeyup="quickLookup()">
+      <div id="quickResult"></div>
+
+      <h3 class="sub-heading" style="margin-top:18px;">Common Verses</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button onclick="lookupVerse('John 3:16')" style="background:var(--gold);color:white;">John 3:16</button>
+        <button onclick="lookupVerse('Romans 8:28')" style="background:var(--gold);color:white;">Romans 8:28</button>
+        <button onclick="lookupVerse('Psalm 23:1')" style="background:var(--gold);color:white;">Psalm 23:1</button>
+        <button onclick="lookupVerse('1 John 1:9')" style="background:var(--gold);color:white;">1 John 1:9</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== SERMON MANAGEMENT =====
+function saveSermon(){
+  const title = document.getElementById('sermonTitle').value.trim();
+  const preacher = document.getElementById('preacher').value.trim();
+  const topic = document.getElementById('topic').value.trim();
+  const standOut = document.getElementById('standOut').value.trim();
+
+  if(!title || !preacher || !topic || !standOut) return;
+
+  const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+  sermons.unshift({
+    date: new Date().toLocaleString(),
+    title, preacher, topic, standOut
+  });
+
+  localStorage.setItem('sermons', JSON.stringify(sermons));
+  document.getElementById('sermonTitle').value = '';
+  document.getElementById('preacher').value = '';
+  document.getElementById('topic').value = '';
+  document.getElementById('standOut').value = '';
+  renderSermons();
+}
+
+function deleteSermon(index){
+  const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+  sermons.splice(index, 1);
+  localStorage.setItem('sermons', JSON.stringify(sermons));
+  renderSermons();
+}
+
+function renderSermons(){
+  const sermonsList = document.getElementById('sermonsList');
+  const sermons = JSON.parse(localStorage.getItem('sermons') || '[]');
+
+  if(sermons.length === 0){
+    sermonsList.innerHTML = '<p style="color:var(--ink-soft);font-style:italic;">No sermons yet.</p>';
+    return;
+  }
+
+  let html = '';
+  sermons.forEach((s, i) => {
+    html += `<div class="note-item">
+      <div class="note-date">${s.date}</div>
+      <div><strong>${s.title}</strong> — ${s.preacher}</div>
+      <div style="font-size:13px;color:var(--ink-soft);margin:6px 0;">${s.topic}</div>
+      <div style="margin:6px 0;">${s.standOut}</div>
+      <button class="note-delete" onclick="deleteSermon(${i})">✕</button>
+    </div>`;
+  });
+
+  sermonsList.innerHTML = html;
+}
+
+// ===== REFLECTION MANAGEMENT =====
+function saveReflection(){
+  const understood = document.getElementById('understood').value.trim();
+  const carry = document.getElementById('carry').value.trim();
+
+  if(!understood || !carry) return;
+
+  const reflections = JSON.parse(localStorage.getItem('reflections') || '[]');
+  reflections.unshift({
+    date: new Date().toLocaleString(),
+    understood, carry
+  });
+
+  localStorage.setItem('reflections', JSON.stringify(reflections));
+  document.getElementById('understood').value = '';
+  document.getElementById('carry').value = '';
+  renderReflections();
+}
+
+function deleteReflection(index){
+  const reflections = JSON.parse(localStorage.getItem('reflections') || '[]');
+  reflections.splice(index, 1);
+  localStorage.setItem('reflections', JSON.stringify(reflections));
+  renderReflections();
+}
+
+function renderReflections(){
+  const reflectionsList = document.getElementById('reflectionsList');
+  const reflections = JSON.parse(localStorage.getItem('reflections') || '[]');
+
+  if(reflections.length === 0){
+    reflectionsList.innerHTML = '<p style="color:var(--ink-soft);font-style:italic;">No reflections yet.</p>';
+    return;
+  }
+
+  let html = '';
+  reflections.forEach((r, i) => {
+    html += `<div class="note-item">
+      <div class="note-date">${r.date}</div>
+      <div><strong>Understood:</strong> ${r.understood}</div>
+      <div style="margin-top:8px;"><strong>Carry:</strong> ${r.carry}</div>
+      <button class="note-delete" onclick="deleteReflection(${i})">✕</button>
+    </div>`;
+  });
+
+  reflectionsList.innerHTML = html;
+}
+
+// ===== BIBLE VERSES (Embedded Sample) =====
+const bibleVerses = {
+  'John 3:16': 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life. (John 3:16 KJV)',
+  'Romans 8:28': 'And we know that all things work together for good to them that love God, to them who are the called according to his purpose. (Romans 8:28 KJV)',
+  'Psalm 23:1': 'The LORD is my shepherd; I shall not want. (Psalm 23:1 KJV)',
+  '1 John 1:9': 'If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness. (1 John 1:9 KJV)',
+  'John 11:25': 'Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live. (John 11:25 KJV)',
+  'Philippians 4:6': 'Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. (Philippians 4:6 KJV)',
+  'Proverbs 3:5': 'Trust in the LORD with all thine heart; and lean not unto thine own understanding. (Proverbs 3:5 KJV)',
+  'Psalm 27:1': 'The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid? (Psalm 27:1 KJV)',
+};
+
+function lookupVerse(ref){
+  const result = document.getElementById('quickResult');
+  const verse = bibleVerses[ref] || 'Verse not found in this collection.';
+  result.innerHTML = `<div class="verse-display"><span class="verse-ref">${ref}</span>${verse}</div>`;
+}
+
+function quickLookup(){
+  const input = document.getElementById('verseRef').value.trim().toUpperCase();
+  const result = document.getElementById('quickResult');
+
+  if(!input){
+    result.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  for(const ref in bibleVerses){
+    if(ref.toUpperCase().includes(input)){
+      html += `<div class="verse-display" onclick="lookupVerse('${ref}')">
+        <span class="verse-ref">${ref}</span>
+        ${bibleVerses[ref].substring(0, 80)}...
+      </div>`;
+    }
+  }
+
+  if(!html) html = '<p style="color:var(--ink-soft);">No verses found. Try: John 3:16, Romans 8:28, Psalm 23:1</p>';
+  result.innerHTML = html;
+}
+
+// ===== TAB SWITCHING =====
+function switchTab(tabName){
+  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+  document.getElementById(tabName).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ===== PAGE LOAD =====
+window.addEventListener('load', () => {
+  renderSermons();
+  renderReflections();
+});
+</script>
+
+</body>
+</html>
