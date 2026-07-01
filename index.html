@@ -494,6 +494,24 @@
 </div>
 
 <!-- ============ VERSE ACTION SHEET ============ -->
+<!-- ============ NEW NOTE PICKER SHEET ============ -->
+<div class="sheet-overlay" id="newNoteSheetOverlay" onclick="if(event.target===this)closeNewNoteSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="ref">New Verse Note</div>
+    <h3 class="sub" style="margin-top:14px;">Book</h3>
+    <input type="text" id="newNoteBookInput" list="newNoteBookList" placeholder="e.g. John">
+    <datalist id="newNoteBookList"></datalist>
+    <h3 class="sub">Chapter</h3>
+    <input type="number" id="newNoteChapterInput" placeholder="e.g. 3" min="1">
+    <h3 class="sub">Verse</h3>
+    <input type="number" id="newNoteVerseInput" placeholder="e.g. 16" min="1">
+    <div id="newNoteError" style="color:#c00;font-size:12px;margin-top:6px;display:none;"></div>
+    <button class="btn" style="margin-top:12px;" onclick="confirmNewNote()">Continue</button>
+    <button class="btn btn-outline sheet-close" onclick="closeNewNoteSheet()">Cancel</button>
+  </div>
+</div>
+
 <div class="sheet-overlay" id="sheetOverlay" onclick="if(event.target===this)closeSheet()">
   <div class="sheet">
     <div class="sheet-handle"></div>
@@ -858,13 +876,45 @@ function saveNote(){
   sheetContext = null;
 }
 
-function openNewNoteSheet(){
-  const book = prompt('Book name (e.g. John):');
-  if(!book) return;
-  const ch = parseInt(prompt('Chapter number:'),10);
-  if(!ch) return;
-  const verse = parseInt(prompt('Verse number:'),10);
-  if(!verse) return;
+async function openNewNoteSheet(){
+  document.getElementById('newNoteBookInput').value = '';
+  document.getElementById('newNoteChapterInput').value = '';
+  document.getElementById('newNoteVerseInput').value = '';
+  document.getElementById('newNoteError').style.display = 'none';
+  document.getElementById('newNoteSheetOverlay').classList.add('open');
+  try{
+    const books = await bible.loadBookList();
+    document.getElementById('newNoteBookList').innerHTML = books.map(b=>'<option value="'+escapeAttr(b)+'">').join('');
+  }catch(e){}
+}
+
+function closeNewNoteSheet(){
+  document.getElementById('newNoteSheetOverlay').classList.remove('open');
+}
+
+async function confirmNewNote(){
+  const errBox = document.getElementById('newNoteError');
+  errBox.style.display = 'none';
+  const bookRaw = document.getElementById('newNoteBookInput').value.trim();
+  const ch = parseInt(document.getElementById('newNoteChapterInput').value, 10);
+  const verse = parseInt(document.getElementById('newNoteVerseInput').value, 10);
+  if(!bookRaw || !ch || !verse){
+    errBox.textContent = 'Please fill in book, chapter, and verse.';
+    errBox.style.display = '';
+    return;
+  }
+  let book = bookRaw;
+  try{
+    const books = await bible.loadBookList();
+    const match = books.find(function(b){ return b.toLowerCase()===bookRaw.toLowerCase(); });
+    if(match){ book = match; }
+    else {
+      errBox.textContent = 'Couldn\'t find "'+bookRaw+'" in the Bible. Check the spelling.';
+      errBox.style.display = '';
+      return;
+    }
+  }catch(e){}
+  closeNewNoteSheet();
   openVerseSheet(book, ch, verse);
 }
 
