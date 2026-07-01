@@ -564,11 +564,26 @@ class BibleModule {
 }
 const bible = new BibleModule();
 
+/* ================= STORAGE HELPER ================= */
+let storageWarned = false;
+function safeSetItem(key, value){
+  try{
+    localStorage.setItem(key, value);
+    return true;
+  }catch(e){
+    if(!storageWarned){
+      storageWarned = true;
+      alert('Your device storage is full, so this last change may not have saved. Try exporting a backup and freeing up space (Journey → Export my data).');
+    }
+    return false;
+  }
+}
+
 /* ================= VERSE DATA (localStorage) ================= */
 const VerseData = {
   KEY:'parchment_verses',
   all(){ try{ return JSON.parse(localStorage.getItem(this.KEY) || '{}'); }catch(e){ return {}; } },
-  save(all){ localStorage.setItem(this.KEY, JSON.stringify(all)); },
+  save(all){ return safeSetItem(this.KEY, JSON.stringify(all)); },
   refKey(book,ch,v){ return book+'|'+ch+'|'+v; },
   get(book,ch,v){ const all=this.all(); return all[this.refKey(book,ch,v)] || {highlight:false,bookmark:false,note:'',noteDate:null}; },
   set(book,ch,v,data){
@@ -601,7 +616,7 @@ const VerseData = {
 const Position = {
   KEY:'parchment_position',
   get(){ try{ return JSON.parse(localStorage.getItem(this.KEY)) || {book:'Genesis',chapter:1}; }catch(e){ return {book:'Genesis',chapter:1}; } },
-  set(book,chapter){ localStorage.setItem(this.KEY, JSON.stringify({book:book,chapter:chapter})); }
+  set(book,chapter){ safeSetItem(this.KEY, JSON.stringify({book:book,chapter:chapter})); }
 };
 const Streak = {
   KEY:'parchment_streak',
@@ -612,7 +627,7 @@ const Streak = {
     const yesterday = new Date(Date.now()-86400000).toDateString();
     data.count = (data.last === yesterday) ? data.count+1 : 1;
     data.last = today;
-    localStorage.setItem(this.KEY, JSON.stringify(data));
+    safeSetItem(this.KEY, JSON.stringify(data));
     return data.count;
   },
   get(){ try{ return (JSON.parse(localStorage.getItem(this.KEY))||{count:0}).count; }catch(e){ return 0; } }
@@ -923,7 +938,7 @@ const DECL_CATEGORIES = ['Faith','Healing','Peace','Wisdom','Business','Family',
 const Declarations = {
   key: 'parchment_declarations',
   all(){ try{ return JSON.parse(localStorage.getItem(this.key))||[]; }catch(e){ return []; } },
-  save(list){ localStorage.setItem(this.key, JSON.stringify(list)); },
+  save(list){ return safeSetItem(this.key, JSON.stringify(list)); },
   add(d){ const list=this.all(); d.id='d'+Date.now(); d.createdAt=new Date().toISOString(); d.favorite=false; list.unshift(d); this.save(list); return d; },
   update(id, patch){ const list=this.all(); const i=list.findIndex(x=>x.id===id); if(i>-1){ list[i]=Object.assign({},list[i],patch); this.save(list); } },
   remove(id){ this.save(this.all().filter(x=>x.id!==id)); },
@@ -1034,7 +1049,7 @@ function closeSpeakOverlay(){ document.getElementById('speakOverlay').classList.
 const Sermons = {
   key: 'parchment_sermons',
   all(){ try{ return JSON.parse(localStorage.getItem(this.key))||[]; }catch(e){ return []; } },
-  save(list){ localStorage.setItem(this.key, JSON.stringify(list)); },
+  save(list){ return safeSetItem(this.key, JSON.stringify(list)); },
   add(s){ const list=this.all(); s.id='sm'+Date.now(); s.createdAt=new Date().toISOString(); list.unshift(s); this.save(list); return s; },
   update(id, patch){ const list=this.all(); const i=list.findIndex(x=>x.id===id); if(i>-1){ list[i]=Object.assign({},list[i],patch); this.save(list); } },
   remove(id){ this.save(this.all().filter(x=>x.id!==id)); },
@@ -1143,7 +1158,7 @@ function deleteSermon(){
 const Prayers = {
   key: 'parchment_prayers',
   all(){ try{ return JSON.parse(localStorage.getItem(this.key))||[]; }catch(e){ return []; } },
-  save(list){ localStorage.setItem(this.key, JSON.stringify(list)); },
+  save(list){ return safeSetItem(this.key, JSON.stringify(list)); },
   add(p){ const list=this.all(); p.id='p'+Date.now(); p.createdAt=new Date().toISOString(); p.answered=false; list.unshift(p); this.save(list); return p; },
   update(id, patch){ const list=this.all(); const i=list.findIndex(x=>x.id===id); if(i>-1){ list[i]=Object.assign({},list[i],patch); this.save(list); } },
   remove(id){ this.save(this.all().filter(x=>x.id!==id)); },
@@ -1260,7 +1275,7 @@ const Reminders = {
   save(list){
     const obj = {};
     list.forEach(function(r){ obj[r.id] = {time:r.time, enabled:r.enabled, firedOn:r.firedOn}; });
-    localStorage.setItem(this.key, JSON.stringify(obj));
+    return safeSetItem(this.key, JSON.stringify(obj));
   },
   update(id, patch){
     const list = this.all();
