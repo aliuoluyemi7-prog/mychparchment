@@ -232,6 +232,7 @@
       <span class="date" id="homeDate"></span>
       <span id="homeGreeting">Good morning.</span>
     </div>
+    <div id="homeSyncIndicator" style="font-size:11px;color:var(--ink-soft);margin-top:-14px;margin-bottom:16px;display:none;"></div>
 
     <div class="votd" id="votdBox">
       <div class="label">Verse of the Day</div>
@@ -571,6 +572,22 @@ const SUPABASE_KEY = 'sb_publishable_cizXj1VuwfhGgaEHFNgTgA_WLF9KQft';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentSession = null;
+let lastSyncTime = null;
+let suppressSyncSchedule = false;
+
+function setSyncStatus(text){
+  const journeyEl = document.getElementById('syncStatus');
+  if(journeyEl) journeyEl.textContent = text;
+  updateHomeSyncIndicator();
+}
+
+function updateHomeSyncIndicator(){
+  const el = document.getElementById('homeSyncIndicator');
+  if(!el) return;
+  if(!currentSession){ el.style.display = 'none'; return; }
+  el.style.display = '';
+  el.textContent = lastSyncTime ? ('☁️ Synced ' + lastSyncTime.toLocaleTimeString()) : '☁️ Signed in — syncing…';
+}
 
 function localKeysSnapshot(){
   return {
@@ -586,6 +603,7 @@ function localKeysSnapshot(){
 
 function applyRemoteSnapshot(data){
   if(!data || typeof data!=='object') return;
+  suppressSyncSchedule = true;
   if(data.verses && typeof data.verses==='object') safeSetItem('parchment_verses', JSON.stringify(data.verses));
   if(data.position && typeof data.position==='object') safeSetItem('parchment_position', JSON.stringify(data.position));
   if(data.streak && typeof data.streak==='object') safeSetItem('parchment_streak', JSON.stringify(data.streak));
@@ -593,12 +611,14 @@ function applyRemoteSnapshot(data){
   if(Array.isArray(data.sermons)) safeSetItem('parchment_sermons', JSON.stringify(data.sermons));
   if(Array.isArray(data.prayers)) safeSetItem('parchment_prayers', JSON.stringify(data.prayers));
   if(data.reminders && typeof data.reminders==='object') safeSetItem('parchment_reminders', JSON.stringify(data.reminders));
+  suppressSyncSchedule = false;
 }
 
 async function syncUp(){
   if(!currentSession) return;
   const payload = localKeysSnapshot();
   await sb.from('user_data').update({data: payload, updated_at: new Date().toISOString()}).eq('user_id', currentSession.user.id);
+  lastSyncTime = new Date();
 }
 
 async function syncDown(){
@@ -609,21 +629,21 @@ async function syncDown(){
 }
 
 async function manualSync(){
-  const statusEl = document.getElementById('syncStatus');
-  statusEl.textContent = 'Syncing…';
+  setSyncStatus('Syncing…');
   try{
     await syncDown();
     await syncUp();
     renderHome(); renderNotes(); renderProfile();
-    statusEl.textContent = 'Last synced ' + new Date().toLocaleTimeString();
+    setSyncStatus('Last synced ' + lastSyncTime.toLocaleTimeString());
   }catch(e){
-    statusEl.textContent = 'Sync failed — try again';
+    setSyncStatus('Sync failed — try again');
   }
 }
 
 function updateSyncUI(){
   const signedOut = document.getElementById('syncSignedOut');
   const signedIn = document.getElementById('syncSignedIn');
+  updateHomeSyncIndicator();
   if(!signedOut || !signedIn) return;
   if(currentSession){
     signedOut.style.display = 'none';
@@ -676,12 +696,15 @@ sb.auth.onAuthStateChange(async function(event, session){
   updateSyncUI();
   if(event === 'SIGNED_IN'){
     closeSignInSheet();
-    const statusEl = document.getElementById('syncStatus');
-    if(statusEl) statusEl.textContent = 'Syncing…';
+    setSyncStatus('Syncing…');
     await syncDown();
     await syncUp();
     renderHome(); renderNotes(); renderProfile();
-    if(statusEl) statusEl.textContent = 'Last synced ' + new Date().toLocaleTimeString();
+    setSyncStatus('Last synced ' + lastSyncTime.toLocaleTimeString());
+  }
+  if(event === 'SIGNED_OUT'){
+    lastSyncTime = null;
+    updateHomeSyncIndicator();
   }
 });
 
@@ -740,9 +763,27 @@ const bible = new BibleModule();
 
 /* ================= STORAGE HELPER ================= */
 let storageWarned = false;
+let syncDebounceTimer = null;
+const SYNCABLE_KEYS = ['parchment_verses','parchment_position','parchment_streak','parchment_declarations','parchment_sermons','parchment_prayers','parchment_reminders'];
+
+function scheduleBackgroundSync(){
+  if(!currentSession || suppressSyncSchedule) return;
+  clearTimeout(syncDebounceTimer);
+  syncDebounceTimer = setTimeout(async function(){
+    setSyncStatus('Syncing…');
+    try{
+      await syncUp();
+      setSyncStatus('Last synced ' + lastSyncTime.toLocaleTimeString());
+    }catch(e){
+      setSyncStatus('Sync failed — will retry on next change');
+    }
+  }, 2000);
+}
+
 function safeSetItem(key, value){
   try{
     localStorage.setItem(key, value);
+    if(SYNCABLE_KEYS.includes(key)) scheduleBackgroundSync();
     return true;
   }catch(e){
     if(!storageWarned){
@@ -840,6 +881,7 @@ async function renderHome(){
   const hour = now.getHours();
   const greet = hour<12 ? 'Good morning.' : (hour<18 ? 'Good afternoon.' : 'Good evening.');
   document.getElementById('homeGreeting').textContent = greet;
+  updateHomeSyncIndicator();
 
   const pos = Position.get();
   document.getElementById('continueLabel').textContent = pos.book + ' ' + pos.chapter;
