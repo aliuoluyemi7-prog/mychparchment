@@ -388,6 +388,8 @@
       <div class="card-title">Data</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <button class="btn btn-outline" onclick="exportData()">Export my data (backup)</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()">Import backup</button>
+        <input type="file" id="importFileInput" accept="application/json" style="display:none;" onchange="importData(this.files[0])">
         <button class="btn btn-danger" onclick="clearAllData()">Clear all data</button>
       </div>
     </div>
@@ -1426,6 +1428,36 @@ function exportData(){
   a.href = url; a.download = 'parchment-backup-' + new Date().toISOString().slice(0,10) + '.json';
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+async function importData(file){
+  if(!file) return;
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(typeof data !== 'object' || data===null) throw new Error('bad file');
+
+    const looksValid = ('verses' in data) || ('declarations' in data) || ('sermons' in data) || ('prayers' in data);
+    if(!looksValid) throw new Error('not a parchment backup');
+
+    const dateLabel = data.exportedAt ? new Date(data.exportedAt).toLocaleString() : 'an unknown date';
+    if(!confirm('Restore backup from '+dateLabel+'?\n\nThis replaces ALL current data on this device — highlights, notes, sermon notes, declarations, prayers, and reminders. This cannot be undone.')) return;
+
+    if(data.verses && typeof data.verses==='object') safeSetItem('parchment_verses', JSON.stringify(data.verses));
+    if(data.position && typeof data.position==='object') safeSetItem('parchment_position', JSON.stringify(data.position));
+    if(data.streak && typeof data.streak==='object') safeSetItem('parchment_streak', JSON.stringify(data.streak));
+    if(Array.isArray(data.declarations)) safeSetItem('parchment_declarations', JSON.stringify(data.declarations));
+    if(Array.isArray(data.sermons)) safeSetItem('parchment_sermons', JSON.stringify(data.sermons));
+    if(Array.isArray(data.prayers)) safeSetItem('parchment_prayers', JSON.stringify(data.prayers));
+    if(data.reminders && typeof data.reminders==='object') safeSetItem('parchment_reminders', JSON.stringify(data.reminders));
+
+    alert('Backup restored. Reloading…');
+    location.reload();
+  }catch(e){
+    alert('Could not read this file — make sure it\'s a Parchment backup exported from this app.');
+  } finally {
+    document.getElementById('importFileInput').value = '';
+  }
 }
 
 function clearAllData(){
