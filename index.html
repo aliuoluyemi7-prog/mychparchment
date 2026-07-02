@@ -207,6 +207,7 @@
   .switch input:checked + .slider{background:var(--wine);}
   .switch input:checked + .slider:before{transform:translateX(18px);}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 </head>
 <body>
 
@@ -378,6 +379,20 @@
       <div class="profile-row"><span class="lbl">Verses bookmarked</span><span class="val" id="pBookmarks">0</span></div>
     </div>
 
+    <div class="card" id="syncCard">
+      <div class="card-title">Sync</div>
+      <div id="syncSignedOut">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:10px;">Sign in to back up your journal to the cloud and access it on other devices.</div>
+        <button class="btn" onclick="openSignInSheet()">Sign in to sync</button>
+      </div>
+      <div id="syncSignedIn" style="display:none;">
+        <div style="font-size:13px;color:var(--ink-soft);margin-bottom:4px;">Signed in as <span id="syncEmail" style="color:var(--ink);font-weight:600;"></span></div>
+        <div style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;" id="syncStatus">Not synced yet</div>
+        <button class="btn btn-outline" onclick="manualSync()">Sync now</button>
+        <button class="btn btn-outline" style="margin-top:8px;" onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-title">Daily Reminders</div>
       <div id="reminderRows"></div>
@@ -469,6 +484,25 @@
   </div>
 </div>
 
+<!-- ============ SIGN-IN SHEET ============ -->
+<div class="sheet-overlay" id="signInSheetOverlay" onclick="if(event.target===this)closeSignInSheet()">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="ref">Sign in to sync</div>
+    <div id="signInFormState">
+      <div class="verse-text" style="font-style:normal;">We'll email you a link — no password needed.</div>
+      <h3 class="sub" style="margin-top:14px;">Email</h3>
+      <input type="email" id="signInEmailInput" placeholder="you@example.com" autocapitalize="off" autocorrect="off">
+      <div id="signInError" style="color:#c00;font-size:12px;margin-top:6px;display:none;"></div>
+      <button class="btn" style="margin-top:12px;" onclick="sendMagicLink()">Send sign-in link</button>
+    </div>
+    <div id="signInSentState" style="display:none;">
+      <div class="verse-text" style="font-style:normal;">Check your email for a sign-in link, then come back to this app and tap it. You can close this window.</div>
+    </div>
+    <button class="btn btn-outline sheet-close" onclick="closeSignInSheet()">Close</button>
+  </div>
+</div>
+
 <!-- ============ PRAYER DETAIL SHEET ============ -->
 <div class="sheet-overlay" id="prayerSheetOverlay" onclick="if(event.target===this)closePrayerSheet()">
   <div class="sheet">
@@ -531,6 +565,126 @@
 </div>
 
 <script>
+/* ================= SUPABASE SYNC ================= */
+const SUPABASE_URL = 'https://xdwtbqkvjbojlvrdamwr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_cizXj1VuwfhGgaEHFNgTgA_WLF9KQft';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentSession = null;
+
+function localKeysSnapshot(){
+  return {
+    verses: VerseData.all(),
+    position: Position.get(),
+    streak: JSON.parse(localStorage.getItem('parchment_streak')||'{}'),
+    declarations: Declarations.all(),
+    sermons: Sermons.all(),
+    prayers: Prayers.all(),
+    reminders: JSON.parse(localStorage.getItem('parchment_reminders')||'{}')
+  };
+}
+
+function applyRemoteSnapshot(data){
+  if(!data || typeof data!=='object') return;
+  if(data.verses && typeof data.verses==='object') safeSetItem('parchment_verses', JSON.stringify(data.verses));
+  if(data.position && typeof data.position==='object') safeSetItem('parchment_position', JSON.stringify(data.position));
+  if(data.streak && typeof data.streak==='object') safeSetItem('parchment_streak', JSON.stringify(data.streak));
+  if(Array.isArray(data.declarations)) safeSetItem('parchment_declarations', JSON.stringify(data.declarations));
+  if(Array.isArray(data.sermons)) safeSetItem('parchment_sermons', JSON.stringify(data.sermons));
+  if(Array.isArray(data.prayers)) safeSetItem('parchment_prayers', JSON.stringify(data.prayers));
+  if(data.reminders && typeof data.reminders==='object') safeSetItem('parchment_reminders', JSON.stringify(data.reminders));
+}
+
+async function syncUp(){
+  if(!currentSession) return;
+  const payload = localKeysSnapshot();
+  await sb.from('user_data').update({data: payload, updated_at: new Date().toISOString()}).eq('user_id', currentSession.user.id);
+}
+
+async function syncDown(){
+  if(!currentSession) return;
+  const {data, error} = await sb.from('user_data').select('data,updated_at').eq('user_id', currentSession.user.id).single();
+  if(error){ console.error(error); return; }
+  if(data && data.data) applyRemoteSnapshot(data.data);
+}
+
+async function manualSync(){
+  const statusEl = document.getElementById('syncStatus');
+  statusEl.textContent = 'Syncing…';
+  try{
+    await syncDown();
+    await syncUp();
+    renderHome(); renderNotes(); renderProfile();
+    statusEl.textContent = 'Last synced ' + new Date().toLocaleTimeString();
+  }catch(e){
+    statusEl.textContent = 'Sync failed — try again';
+  }
+}
+
+function updateSyncUI(){
+  const signedOut = document.getElementById('syncSignedOut');
+  const signedIn = document.getElementById('syncSignedIn');
+  if(!signedOut || !signedIn) return;
+  if(currentSession){
+    signedOut.style.display = 'none';
+    signedIn.style.display = '';
+    document.getElementById('syncEmail').textContent = currentSession.user.email;
+  } else {
+    signedOut.style.display = '';
+    signedIn.style.display = 'none';
+  }
+}
+
+function openSignInSheet(){
+  document.getElementById('signInFormState').style.display = '';
+  document.getElementById('signInSentState').style.display = 'none';
+  document.getElementById('signInError').style.display = 'none';
+  document.getElementById('signInEmailInput').value = '';
+  document.getElementById('signInSheetOverlay').classList.add('open');
+}
+
+function closeSignInSheet(){
+  document.getElementById('signInSheetOverlay').classList.remove('open');
+}
+
+async function sendMagicLink(){
+  const email = document.getElementById('signInEmailInput').value.trim();
+  const errBox = document.getElementById('signInError');
+  errBox.style.display = 'none';
+  if(!email || !email.includes('@')){
+    errBox.textContent = 'Please enter a valid email.';
+    errBox.style.display = '';
+    return;
+  }
+  const {error} = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: window.location.origin + window.location.pathname } });
+  if(error){
+    errBox.textContent = 'Could not send link — try again.';
+    errBox.style.display = '';
+    return;
+  }
+  document.getElementById('signInFormState').style.display = 'none';
+  document.getElementById('signInSentState').style.display = '';
+}
+
+async function signOut(){
+  if(!confirm('Sign out? Your data stays on this device — you just stop syncing until you sign in again.')) return;
+  await sb.auth.signOut();
+}
+
+sb.auth.onAuthStateChange(async function(event, session){
+  currentSession = session;
+  updateSyncUI();
+  if(event === 'SIGNED_IN'){
+    closeSignInSheet();
+    const statusEl = document.getElementById('syncStatus');
+    if(statusEl) statusEl.textContent = 'Syncing…';
+    await syncDown();
+    await syncUp();
+    renderHome(); renderNotes(); renderProfile();
+    if(statusEl) statusEl.textContent = 'Last synced ' + new Date().toLocaleTimeString();
+  }
+});
+
 /* ================= BIBLE MODULE (per-book lazy loading) ================= */
 class BibleModule {
   constructor(){ this.bookList=null; this.cache={}; }
